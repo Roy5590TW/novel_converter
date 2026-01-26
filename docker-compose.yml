@@ -1,0 +1,14 @@
+services:
+  novel-server-self-py:
+    build: .
+    container_name: novel-server-self-py
+    expose:
+      - "80"
+    volumes:
+      - ./output:/var/www/html
+    restart: unless-stopped
+    networks:
+      - nginx-reverse-proxy
+networks:
+  nginx-reverse-proxy:
+    external: true
