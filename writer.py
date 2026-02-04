@@ -30,3 +30,28 @@ def write_chapter(base_dir: str, novel_key: str, index: int, markdown: str) -> s
         raise IOError(f"Failed to write file: {exc}") from exc
 
     return file_path
+
+
+def write_config_yaml(base_dir: str, novel_key: str) -> str:
+    """
+    Write a config.yaml file for the novel if it does not already exist.
+    Returns the path to the config file.
+    """
+    novel_dir = os.path.join(base_dir, novel_key)
+    os.makedirs(novel_dir, exist_ok=True) # Ensure novel directory exists
+
+    config_path = os.path.join(novel_dir, "config.yaml")
+
+    if not os.path.exists(config_path):
+        template_content = (
+            'title: "title"\n'
+            'author: "author"\n'
+            'description: "description."\n'
+        )
+        try:
+            with open(config_path, "w", encoding="utf-8") as file:
+                file.write(template_content)
+        except OSError as exc:
+            raise IOError(f"Failed to write config.yaml: {exc}") from exc
+    
+    return config_path

@@ -1,3 +1,4 @@
 __*
-content/
+content/*/
 output/
+inputs/*.json
