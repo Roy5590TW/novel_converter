@@ -1,18 +1,22 @@
 """
-Main orchestrator for converting JSON chapter data into Markdown files.
+Orchestrates the conversion of JSON chapter data into Markdown files.
+
+This script takes a JSON input file, generates a unique novel key,
+creates/updates a config.yaml, and converts the JSON content into
+structured Markdown chapter files.
 
 Usage:
-    python main.py --input chapters.json --novel-key my-novel
+    python src/json2md.py --input <path_to_json_file>
 """
 
 import argparse
 import secrets
 import string
 
-from loader import load_chapter_json
-from normalizer import normalize_title, normalize_content
-from formatter import build_markdown
-from writer import write_chapter, write_config_yaml
+from .loader import load_chapter_json
+from .normalizer import normalize_title, normalize_content
+from .formatter import build_markdown
+from .writer import write_chapter, write_config_yaml
 
 
 def run_converter(input_path: str, output_path: str, novel_key: str) -> None:
