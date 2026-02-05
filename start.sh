@@ -3,7 +3,7 @@
 # 1. Convert JSON to Markdown
 for json_file in inputs/*.json; do
     if [ -f "$json_file" ]; then
-        python3 src/json2md.py --input "$json_file"
+        python3 -m src.json2md --input "$json_file"
     fi
 done
 
