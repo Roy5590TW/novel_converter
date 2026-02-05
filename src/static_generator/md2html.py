@@ -190,134 +190,110 @@ BASE_TEMPLATE = """
 <html lang="zh-TW">
 <head>
     <meta charset="utf-8">
-
-    <!-- Lock zoom -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
     <title>{title}</title>
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
-
-        /* ---------- Light / Dark theme variables ---------- */
         :root {{
-            --bg-page: #eeeeee;
-            --bg-paper: #fffdf8;
-            --text: #222222;
-            --link: #4a6fa5;
+            --bg-page: #f0f2f5;
+            --bg-paper: #ffffff;
+            --text: #1f2937;
+            --link: #3b82f6;
+            --border: #e5e7eb;
         }}
-
         body.dark {{
-            --bg-page: #1a1a1a;
-            --bg-paper: #222222;
-            --text: #e6e6e6;
-            --link: #7aa2d6;
+            --bg-page: #111827;
+            --bg-paper: #1f2937;
+            --text: #d1d5db;
+            --link: #60a5fa;
+            --border: #374151;
         }}
-
-        /* ---------- Layout ---------- */
         body {{
             background: var(--bg-page);
             margin: 0;
             display: flex;
             justify-content: center;
-            font-family: "Noto Serif TC", "Times New Roman", serif;
-
+            font-family: "Inter", "Noto Serif TC", "Times New Roman", serif;
             transition: background 0.3s ease;
         }}
-
         .reader {{
-            width: 800px;
-            max-width: 95vw;
-
+            width: 840px;
+            max-width: 90vw;
             background: var(--bg-paper);
-            margin: 40px 0;
-
-            padding: 60px;
-
-            font-size: 26px;     /* big comfortable text */
-            line-height: 2.3;
-
+            margin: 50px 0;
+            padding: 50px 70px;
+            font-size: 24px;
+            line-height: 2.2;
             color: var(--text);
-
-            box-shadow: 0 6px 25px rgba(0,0,0,0.2);
-
-            overflow-y: auto;
-
-            transition: background 0.3s ease, color 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: background 0.3s ease, color 0.3s ease, border 0.3s ease;
         }}
-
+        h1, h2 {{
+            font-family: "Inter", "Noto Serif TC", sans-serif;
+            font-weight: 700;
+        }}
         h1 {{
             margin-top: 0;
-            font-size: 42px;
+            font-size: 44px;
+            color: var(--text);
         }}
-
+        h2 {{
+            font-size: 32px;
+        }}
         a {{
             color: var(--link);
             text-decoration: none;
+            transition: color 0.2s ease;
         }}
-
+        a:hover {{
+            text-decoration: underline;
+        }}
         .nav {{
-            margin-top: 40px;
-            font-size: 20px;
+            margin-top: 50px;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
         }}
-
-        /* -------- Dark mode button -------- */
         .toggle {{
             position: fixed;
-            top: 12px;
-            right: 12px;
-
-            padding: 8px 14px;
-
-            background: #444;
-            color: #fff;
-
-            border-radius: 6px;
+            top: 15px;
+            right: 15px;
+            padding: 8px 12px;
+            background: var(--bg-paper);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
             cursor: pointer;
-
             font-size: 14px;
-
             z-index: 9999;
-
-            transition: background 0.25s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: background 0.25s ease, color 0.25s ease, border 0.25s ease;
         }}
-
-        body.dark .toggle {{
-            background: #bbb;
-            color: #000;
+        .toggle:hover {{
+            opacity: 0.8;
         }}
-
     </style>
-
     <script>
         function toggleTheme() {{
             document.body.classList.toggle("dark");
-
-            // persist preference
-            if (document.body.classList.contains("dark")) {{
-                localStorage.setItem("reader-theme", "dark");
-            }} else {{
-                localStorage.setItem("reader-theme", "light");
-            }}
+            localStorage.setItem("reader-theme", document.body.classList.contains("dark") ? "dark" : "light");
         }}
-
-        // load theme
         window.addEventListener("DOMContentLoaded", () => {{
-            const saved = localStorage.getItem("reader-theme");
-            if (saved === "dark") {{
+            if (localStorage.getItem("reader-theme") === "dark") {{
                 document.body.classList.add("dark");
             }}
         }});
     </script>
 </head>
-
 <body>
-
     <div class="toggle" onclick="toggleTheme()">🌓 切換模式</div>
-
     <div class="reader">
         {content}
     </div>
-
 </body>
 </html>
 """
