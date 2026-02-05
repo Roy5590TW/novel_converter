@@ -208,43 +208,35 @@ def render_chapter_page(novel: Novel, chapter: Chapter) -> str:
     # Escape text safely
     body = html.escape(chapter.body).replace("\n", "<br>")
 
-    # Locate prev / next chapters
-    idx = novel.chapters.index(chapter)
-
-    prev_link = None
-    next_link = None
-
+    # Construct navigation buttons for the footer
+    prev_button = ""
     if idx > 0:
         prev_ch = novel.chapters[idx - 1]
         prev_link = f"{prev_ch.id}.html"
+        prev_button = f'<a href="{prev_link}">⬅ 上一頁</a>'
 
+    home_button = f'<a href="../../index.html">📚 回書頁</a>'
+
+    next_button = ""
     if idx < len(novel.chapters) - 1:
         next_ch = novel.chapters[idx + 1]
         next_link = f"{next_ch.id}.html"
-
-    # Navigation button block
-    nav_buttons = "<div style='margin-top:20px;'>"
-
-    if prev_link:
-        nav_buttons += f"<a href='{prev_link}'>⬅ Previous</a> &nbsp;&nbsp;"
-
-    nav_buttons += "<a href='../index.html'>📚 Back to list</a>"
-
-    if next_link:
-        nav_buttons += f"&nbsp;&nbsp; <a href='{next_link}'>Next ➡</a>"
-
-    nav_buttons += "</div>"
+        next_button = f'<a href="{next_link}">下一頁 ➡</a>'
 
     content = f"""
     <h1>{html.escape(chapter.title)}</h1>
     <p><em>{html.escape(novel.title)} — {html.escape(novel.author)}</em></p>
 
     <div class="chapter">{body}</div>
-
-    {nav_buttons}
     """
 
-    return load_template("base.html").format(title=chapter.title, content=content)
+    return load_template("base.html").format(
+        title=chapter.title,
+        content=content,
+        prev_button=prev_button,
+        home_button=home_button,
+        next_button=next_button
+    )
 
 
 
@@ -268,7 +260,13 @@ def render_novel_index(novel: Novel) -> str:
     <p><a href="../index.html">Back to library</a></p>
     """
 
-    return load_template("base.html").format(title=novel.title, content=content)
+    return load_template("base.html").format(
+        title=novel.title,
+        content=content,
+        prev_button="",
+        home_button='<a href="../index.html">📚 返回書庫</a>',
+        next_button=""
+    )
 
 
 def render_library_index(novels: List[Novel]) -> str:
@@ -285,7 +283,13 @@ def render_library_index(novels: List[Novel]) -> str:
     {html_list}
     """
 
-    return load_template("base.html").format(title="Library", content=content)
+    return load_template("base.html").format(
+        title="Library",
+        content=content,
+        prev_button="",
+        home_button="",
+        next_button=""
+    )
 
 
 # -------------------------------------------------------------

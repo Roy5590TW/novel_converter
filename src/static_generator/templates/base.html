@@ -35,7 +35,7 @@
             width: 840px;
             max-width: 90vw;
             background: var(--bg-paper);
-            margin: 50px 0;
+            margin: 50px 0 100px 0; /* Adjusted margin-bottom */
             padding: 50px 70px;
             font-size: 24px;
             line-height: 2.2;
@@ -45,49 +45,35 @@
             border: 1px solid var(--border);
             transition: background 0.3s ease, color 0.3s ease, border 0.3s ease;
         }}
-        h1, h2 {{
-            font-family: "Inter", "Noto Serif TC", sans-serif;
-            font-weight: 700;
-        }}
-        h1 {{
-            margin-top: 0;
-            font-size: 44px;
-            color: var(--text);
-        }}
-        h2 {{
-            font-size: 32px;
-        }}
-        a {{
-            color: var(--link);
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }}
-        a:hover {{
-            text-decoration: underline;
-        }}
-        .nav {{
-            margin-top: 50px;
-            font-size: 18px;
-            display: flex;
-            justify-content: space-between;
-        }}
-        .toggle {{
+        /* ... existing styles ... */
+        .footer-nav {{
             position: fixed;
-            top: 15px;
-            right: 15px;
-            padding: 8px 12px;
+            bottom: 0;
+            left: 0;
+            width: 100%;
             background: var(--bg-paper);
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            z-index: 9999;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: background 0.25s ease, color 0.25s ease, border 0.25s ease;
+            border-top: 1px solid var(--border);
+            padding: 15px 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 999;
+            transition: background 0.3s ease, border 0.3s ease;
         }}
-        .toggle:hover {{
-            opacity: 0.8;
+        .footer-nav a {{
+            font-size: 18px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+            text-decoration: none; /* Ensure links in footer are not underlined by default */
+        }}
+        .footer-nav a:hover {{
+            background: rgba(0,0,0,0.05);
+            text-decoration: none;
+        }}
+        body.dark .footer-nav a:hover {{
+            background: rgba(255,255,255,0.05);
         }}
     </style>
     <script>
@@ -106,6 +92,11 @@
     <div class="toggle" onclick="toggleTheme()">🌓 切換模式</div>
     <div class="reader">
         {content}
+    </div>
+    <div class="footer-nav">
+        {prev_button}
+        {home_button}
+        {next_button}
     </div>
 </body>
 </html>
