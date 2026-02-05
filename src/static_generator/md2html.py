@@ -246,16 +246,35 @@ def render_chapter_page(novel: Novel, chapter: Chapter) -> str:
 def render_novel_index(novel: Novel) -> str:
     """Render the novel's chapter list."""
 
+    # Existing chapter list HTML
     items = []
     for ch in novel.chapters:
         items.append(f'<li><a href="chapters/{ch.id}.html">{html.escape(ch.title)}</a></li>')
 
     chapters_html = "<ul>\n" + "\n".join(items) + "\n</ul>"
 
+    # New chapter jump dropdown
+    options = []
+    for ch in novel.chapters:
+        options.append(f'<option value="chapters/{ch.id}.html">{html.escape(ch.title)}</option>')
+
+    chapter_jump_html = f"""
+    <div style="margin-bottom: 20px;">
+        <label for="chapter-jump">跳轉章節: </label>
+        <select id="chapter-jump" onchange="window.location.href = this.value;">
+            <option value="">請選擇章節...</option>
+            {''.join(options)}
+        </select>
+    </div>
+    """
+
+
     content = f"""
     <h1>{html.escape(novel.title)}</h1>
     <p>Author: {html.escape(novel.author)}</p>
     <p>{html.escape(novel.description)}</p>
+
+    {chapter_jump_html}
 
     <h2>Chapters</h2>
     {chapters_html}
