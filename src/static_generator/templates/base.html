@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {{
+            --bg-page: #f0f2f5;
+            --bg-paper: #ffffff;
+            --text: #1f2937;
+            --link: #3b82f6;
+            --border: #e5e7eb;
+        }}
+        body.dark {{
+            --bg-page: #111827;
+            --bg-paper: #1f2937;
+            --text: #d1d5db;
+            --link: #60a5fa;
+            --border: #374151;
+        }}
+        body {{
+            background: var(--bg-page);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            font-family: "Inter", "Noto Serif TC", "Times New Roman", serif;
+            transition: background 0.3s ease;
+        }}
+        .reader {{
+            width: 840px;
+            max-width: 90vw;
+            background: var(--bg-paper);
+            margin: 50px 0;
+            padding: 50px 70px;
+            font-size: 24px;
+            line-height: 2.2;
+            color: var(--text);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: background 0.3s ease, color 0.3s ease, border 0.3s ease;
+        }}
+        h1, h2 {{
+            font-family: "Inter", "Noto Serif TC", sans-serif;
+            font-weight: 700;
+        }}
+        h1 {{
+            margin-top: 0;
+            font-size: 44px;
+            color: var(--text);
+        }}
+        h2 {{
+            font-size: 32px;
+        }}
+        a {{
+            color: var(--link);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }}
+        a:hover {{
+            text-decoration: underline;
+        }}
+        .nav {{
+            margin-top: 50px;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+        }}
+        .toggle {{
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            padding: 8px 12px;
+            background: var(--bg-paper);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 9999;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: background 0.25s ease, color 0.25s ease, border 0.25s ease;
+        }}
+        .toggle:hover {{
+            opacity: 0.8;
+        }}
+    </style>
+    <script>
+        function toggleTheme() {{
+            document.body.classList.toggle("dark");
+            localStorage.setItem("reader-theme", document.body.classList.contains("dark") ? "dark" : "light");
+        }}
+        window.addEventListener("DOMContentLoaded", () => {{
+            if (localStorage.getItem("reader-theme") === "dark") {{
+                document.body.classList.add("dark");
+            }}
+        }});
+    </script>
+</head>
+<body>
+    <div class="toggle" onclick="toggleTheme()">🌓 切換模式</div>
+    <div class="reader">
+        {content}
+    </div>
+</body>
+</html>
