@@ -208,6 +208,9 @@ def render_chapter_page(novel: Novel, chapter: Chapter) -> str:
     # Escape text safely
     body = html.escape(chapter.body).replace("\n", "<br>")
 
+    # Locate current chapter index
+    idx = novel.chapters.index(chapter)
+
     # Construct navigation buttons for the footer
     prev_button = ""
     if idx > 0:
