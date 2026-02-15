@@ -1,0 +1,13 @@
+services:
+  novel-library:
+    build: .
+    container_name: novel-reader
+    user: "1000:1000"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+      - ./inputs:/app/inputs
+    restart: always
+    environment:
+      - TZ=Asia/Taipei
