@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI 小說閱讀器</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f4f4f4; }
+        #content { background: white; padding: 20px; line-height: 1.6; border-radius: 8px; }
+        .menu { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>📚 小說庫</h1>
+    <div class="menu">
+        <select id="bookSelect" onchange="loadChapters()"><option>載入中...</option></select>
+        <select id="chapterSelect" onchange="loadContent()"><option>選擇章節</option></select>
+    </div>
+    <div id="content">請選擇小說開始閱讀...</div>
+
+    <script>
+        fetch('/api/books')
+            .then(res => res.json())
+            .then(books => {
+                const sel = document.getElementById('bookSelect');
+                sel.innerHTML = '<option>請選擇小說</option>' + 
+                    books.map(b => `<option value="${b}">${b}</option>`).join('');
+            });
+
+        function loadChapters() {
+            const bookName = document.getElementById('bookSelect').value;
+            fetch(`/api/chapters/${encodeURIComponent(bookName)}`)
+                .then(res => res.json())
+                .then(chapters => {
+                    const sel = document.getElementById('chapterSelect');
+                    sel.innerHTML = chapters.map(c => 
+                        `<option value="${c.chapter_num}">${c.title}</option>`).join('');
+                    loadContent();
+                });
+        }
+
+        function loadContent() {
+            const bookName = document.getElementById('bookSelect').value;
+            const chNum = document.getElementById('chapterSelect').value;
+            fetch(`/api/content/${encodeURIComponent(bookName)}/${chNum}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('content').innerHTML = 
+                        `<h2>${data.title}</h2><pre style="white-space: pre-wrap;">${data.content}</pre>`;
+                });
+        }
+    </script>
+</body>
+</html>

@@ -1,15 +1,23 @@
+import uvicorn
 import asyncio
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from src.database import init_db
 from src.importer import run_import
+from src.app import router
 
-async def start_process():
-    print("正在初始化資料庫...")
+app = FastAPI()
+
+@app.on_event("startup")
+async def startup_event():
+    print("--- 系統啟動中 ---")
     await init_db()
-    
-    print("正在掃描 inputs 並導入數據...")
     await run_import()
-    
-    print("所有流程已完成！")
+    print("--- 資料準備就緒 ---")
+
+app.include_router(router)
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
+
 
 if __name__ == "__main__":
-    asyncio.run(start_process())
+    uvicorn.run(app, host="0.0.0.0", port=8080)
