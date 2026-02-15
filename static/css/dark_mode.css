@@ -1,0 +1,45 @@
+:root {
+    /* Lightmode (default) */
+    --primary-color: #2c3e50;
+    --bg-color: #f9f9f9;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --border-color: #eeeeee;
+    --li-hover-bg: #f0f7ff;
+    --nav-border: #dddddd;
+}
+
+/* Darkmode (Auto Detect)*/
+@media (prefers-color-scheme: dark) {
+    :root:not(.light-mode) {
+        --primary-color: #3498db;
+        --bg-color: #121212;
+        --card-bg: #1e1e1e;
+        --text-color: #e0e0e0;
+        --border-color: #333333;
+        --li-hover-bg: #2c3e50;
+        --nav-border: #444444;
+    }
+}
+
+/* Darkmode(Manual force)*/
+.dark-mode {
+    --primary-color: #3498db;
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-color: #e0e0e0;
+    --border-color: #333333;
+    --li-hover-bg: #2c3e50;
+    --nav-border: #444444;
+}
+
+/* Lightmode(Manual force)*/
+.light-mode {
+    --primary-color: #2c3e50;
+    --bg-color: #f9f9f9;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --border-color: #eeeeee;
+    --li-hover-bg: #f0f7ff;
+    --nav-border: #dddddd;
+}

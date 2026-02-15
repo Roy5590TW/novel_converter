@@ -3,255 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <title>Novel Library</title>
-    <style>
-        :root {
-            /* Lightmode (default) */
-            --primary-color: #2c3e50;
-            --bg-color: #f9f9f9;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #eeeeee;
-            --li-hover-bg: #f0f7ff;
-            --nav-border: #dddddd;
-        }
-        
-        /* Darkmode (Auto Detect)*/
-        @media (prefers-color-scheme: dark) {
-            :root:not(.light-mode) {
-                --primary-color: #3498db;
-                --bg-color: #121212;
-                --card-bg: #1e1e1e;
-                --text-color: #e0e0e0;
-                --border-color: #333333;
-                --li-hover-bg: #2c3e50;
-                --nav-border: #444444;
-            }
-        }
-
-        /* Darkmode(Manual force)*/
-        .dark-mode {
-            --primary-color: #3498db;
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #e0e0e0;
-            --border-color: #333333;
-            --li-hover-bg: #2c3e50;
-            --nav-border: #444444;
-        }
-
-        /* Lightmode(Manual force)*/
-        .light-mode {
-            --primary-color: #2c3e50;
-            --bg-color: #f9f9f9;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #eeeeee;
-            --li-hover-bg: #f0f7ff;
-            --nav-border: #dddddd;
-        }
-
-        body {
-            font-family: "Segoe UI", "PingFang TC", sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            background-color: var(--bg-color);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        h1, h2 {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
-        }
-
-        ul { list-style: none; padding: 0; }
-
-        li {
-            background: var(--card-bg);
-            margin: 8px 0;
-            padding: 12px 20px;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: 0.2s;
-            cursor: pointer;
-            color: var(--text-color);
-        }
-
-        li:hover {
-            transform: translateX(10px);
-            background: var(--li-hover-bg);
-            border-left: 4px solid #3498db;
-        }
-
-        .hidden { display: none; }
-        
-        #content-area {
-            background: var(--card-bg);
-            color: var(--text-color);
-            padding: 30px;
-            border-radius: 8px;
-            white-space: pre-wrap;
-            font-size: 1.1em;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .back-btn { margin-bottom: 20px; cursor: pointer; color: #3498db; font-weight: bold; }
-    </style>
+    <link rel="stylesheet" href="/css/dark_mode.css">
+    <link rel="stylesheet" href="/css/base.css">
 </head>
 <body>
-
     <div id="view-home">
         <h1>Novel Library</h1>
         <ul id="book-list"></ul>
     </div>
 
-    <div style="text-align: right; margin-bottom: 20px;">
-        <button id="theme-toggle" onclick="toggleDarkMode()" style="padding: 8px 12px; cursor: pointer; border-radius: 20px; border: 1px solid var(--nav-border); background: var(--card-bg); color: var(--text-color);">
+    <div class="theme-controls">
+        <button id="theme-toggle">
             <span id="theme-icon">🌙</span> <span id="theme-text">深色模式</span>
         </button>
     </div>
 
     <div id="view-chapters" class="hidden">
-        <div class="back-btn" onclick="showHome()">← Back to Library</div>
+        <div class="back-btn" id="back-to-home">← Back to Library</div>
         <h1 id="current-book-name">Book Title</h1>
         <h2>Chapters</h2>
         <ul id="chapter-list"></ul>
     </div>
 
     <div id="view-read" class="hidden">
-        <div class="back-btn" onclick="showChapters()">← Back to Chapters</div>
+        <div class="back-btn" id="back-to-chapters">← Back to Chapters</div>
         <h1 id="current-chapter-title">Chapter Title</h1>
         
         <div id="content-area"></div>
 
         <div class="read-nav">
-            <button id="prev-btn" onclick="prevChapter()">← 上一章</button>
-            <button onclick="showChapters()">Back to Chapters</button>
-            <button id="next-btn" onclick="nextChapter()">下一章 →</button>
+            <button id="prev-btn">← 上一章</button>
+            <button id="nav-back-chapters">Back to Chapters</button>
+            <button id="next-btn">下一章 →</button>
         </div>
     </div>
 
-    <style>
-        /* 新增導航欄位的樣式 */
-        .read-nav {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid var(--nav-border);
-        }
-        .read-nav button {
-            padding: 10px 20px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: opacity 0.2s;
-        }
-        .read-nav button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        .read-nav button:hover:not(:disabled) {
-            opacity: 0.8;
-        }
-    </style>
-
-    <script>
-        const views = {
-            home: document.getElementById('view-home'),
-            chapters: document.getElementById('view-chapters'),
-            read: document.getElementById('view-read')
-        };
-
-        let activeBook = "";
-
-        let currentChNum = 1;
-        let totalChapters = 0;
-
-        function toggleDarkMode() {
-            const html = document.documentElement;
-            
-            // 如果目前是深色 (可能是系統自動或手動)
-            const isCurrentlyDark = getComputedStyle(html).getPropertyValue('--bg-color').trim() === '#121212';
-
-            if (isCurrentlyDark) {
-                // 強制切換為淺色
-                html.classList.remove('dark-mode');
-                html.classList.add('light-mode');
-                localStorage.setItem('theme', 'light');
-                updateThemeUI(false);
-            } else {
-                // 強制切換為深色
-                html.classList.remove('light-mode');
-                html.classList.add('dark-mode');
-                localStorage.setItem('theme', 'dark');
-                updateThemeUI(true);
-            }
-        }
-
-        // 頁面切換邏輯
-        function switchView(viewName) {
-            Object.values(views).forEach(v => v.classList.add('hidden'));
-            views[viewName].classList.remove('hidden');
-            window.scrollTo(0,0);
-        }
-
-        function showHome() { switchView('home'); }
-        function showChapters() { switchView('chapters'); }
-
-        // 1. 初始化：抓取所有書籍
-        async function initLibrary() {
-            const res = await fetch('/api/books');
-            const books = await res.json();
-            const list = document.getElementById('book-list');
-            list.innerHTML = books.map(book => 
-                `<li onclick="loadChapters('${book}')">📖 ${book}</li>`
-            ).join('');
-        }
-
-        // 2. 點擊書籍：抓取章節
-        async function loadChapters(bookName) {
-            activeBook = bookName;
-            document.getElementById('current-book-name').innerText = bookName;
-            const res = await fetch(`/api/chapters/${encodeURIComponent(bookName)}`);
-            const chapters = await res.json();
-            
-            
-            totalChapters = chapters.length;
-
-            const list = document.getElementById('chapter-list');
-            list.innerHTML = chapters.map(ch => 
-                `<li onclick="loadContent(${ch.chapter_num})">${ch.title}</li>`
-            ).join('');
-            switchView('chapters');
-        }
-
-        // 3. 點擊章節：抓取內容
-        async function loadContent(chNum) {
-            currentChNum = chNum;
-            const res = await fetch(`/api/content/${encodeURIComponent(activeBook)}/${chNum}`);
-            if (!res.ok) return;
-
-            const data = await res.json();
-            
-            document.getElementById('current-chapter-title').innerText = data.title;
-            document.getElementById('content-area').innerText = data.content;
-            
-            document.getElementById('prev-btn').disabled = (currentChNum <= 1);
-            document.getElementById('next-btn').disabled = (currentChNum >= totalChapters);
-
-            switchView('read');
-        }
-        function prevChapter() { if (currentChNum > 1) loadContent(currentChNum - 1); }
-        function nextChapter() { if (currentChNum < totalChapters) loadContent(currentChNum + 1); }
-
+    <script type="module">
+        import { initDarkMode, toggleDarkMode } from '/js/dark_mode_support.js';
+        import { initLibrary, showHome, showChapters, prevChapter, nextChapter } from '/js/app.js';
+        
+        // Initialization
+        initDarkMode();
         initLibrary();
+
+        // Binding events
+        document.getElementById('theme-toggle').onclick = toggleDarkMode;
+
+        document.getElementById('back-to-home').onclick = showHome;
+        document.getElementById('back-to-chapters').onclick = showChapters;
+        document.getElementById('nav-back-chapters').onclick = showChapters;
+
+        document.getElementById('prev-btn').onclick = prevChapter;
+        document.getElementById('next-btn').onclick = nextChapter;
     </script>
 </body>
 </html>
