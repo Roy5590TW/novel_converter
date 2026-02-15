@@ -1,5 +1,2 @@
 __*
-content/*/
-output/
-inputs/*.json
-content/processed_mapping.json
+inputs/
