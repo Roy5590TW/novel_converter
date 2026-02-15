@@ -12,13 +12,22 @@ async def init_db():
     async with get_db() as db:
         db.row_factory = aiosqlite.Row
         await db.execute('''
+            CREATE TABLE IF NOT EXISTS books (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                book_name TEXT UNIQUE NOT NULL
+            )
+        ''')
+        
+        await db.execute('''
             CREATE TABLE IF NOT EXISTS chapters (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                book_name TEXT,
+                book_id INTEGER,
                 chapter_num INTEGER,
                 title TEXT,
                 content TEXT,
-                UNIQUE(book_name, chapter_num)
+                FOREIGN KEY (book_id) REFERENCES books (id),
+                UNIQUE(book_id, chapter_num)
             )
         ''')
+
         await db.commit()
