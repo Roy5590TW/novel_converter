@@ -1,10 +1,18 @@
-import json
-from pathlib import Path
-import asyncio
 import aiosqlite
+import json
+import re
+from pathlib import Path
 from .database import get_db
 
 INPUTS_DIR = Path("inputs")
+
+def clean_title(title, ch_num):
+
+    pattern = r'^(第[0-9一二三四五六七八九十百千萬]+[章回]|第?[0-9一二三四五六七八九十百千萬]+[、\s])'
+    if re.search(pattern, title):
+        return title
+    else:
+        return f"第 {ch_num} 章 - {title}"
 
 async def run_import():
     async with get_db() as db:
@@ -28,7 +36,12 @@ async def run_import():
                 data = json.load(f)
             
             chapters_to_db = [
-                (book_id, i + 1, item['title'], item['content']) 
+                (
+                    book_id, 
+                    i + 1, 
+                    clean_title(item['title'], i + 1),
+                    item['content']
+                ) 
                 for i, item in enumerate(data)
             ]
 

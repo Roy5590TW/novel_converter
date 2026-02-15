@@ -109,11 +109,12 @@
             const res = await fetch(`/api/chapters/${encodeURIComponent(bookName)}`);
             const chapters = await res.json();
             
+            
             totalChapters = chapters.length;
 
             const list = document.getElementById('chapter-list');
             list.innerHTML = chapters.map(ch => 
-                `<li onclick="loadContent(${ch.chapter_num})">第 ${ch.chapter_num} 章 - ${ch.title}</li>`
+                `<li onclick="loadContent(${ch.chapter_num})">${ch.title}</li>`
             ).join('');
             switchView('chapters');
         }
