@@ -1,52 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
-    <title>AI 小說閱讀器</title>
+    <meta charset="UTF-8">
+    <title>AI Novel Library</title>
     <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f4f4f4; }
-        #content { background: white; padding: 20px; line-height: 1.6; border-radius: 8px; }
-        .menu { margin-bottom: 20px; }
+        :root { --primary-color: #2c3e50; --bg-color: #f9f9f9; }
+        body { font-family: "Segoe UI", "PingFang TC", sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 0 auto; padding: 40px 20px; background-color: var(--bg-color); }
+        h1, h2 { color: var(--primary-color); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        ul { list-style: none; padding: 0; }
+        li { background: white; margin: 8px 0; padding: 12px 20px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; cursor: pointer; }
+        li:hover { transform: translateX(10px); background: #f0f7ff; border-left: 4px solid #3498db; }
+        .hidden { display: none; }
+        #content-area { background: white; padding: 30px; border-radius: 8px; white-space: pre-wrap; font-size: 1.1em; }
+        .back-btn { margin-bottom: 20px; cursor: pointer; color: #3498db; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>📚 小說庫</h1>
-    <div class="menu">
-        <select id="bookSelect" onchange="loadChapters()"><option>載入中...</option></select>
-        <select id="chapterSelect" onchange="loadContent()"><option>選擇章節</option></select>
+
+    <div id="view-home">
+        <h1>Novel Library</h1>
+        <ul id="book-list"></ul>
     </div>
-    <div id="content">請選擇小說開始閱讀...</div>
+
+    <div id="view-chapters" class="hidden">
+        <div class="back-btn" onclick="showHome()">← Back to Library</div>
+        <h1 id="current-book-name">Book Title</h1>
+        <h2>Chapters</h2>
+        <ul id="chapter-list"></ul>
+    </div>
+
+    <div id="view-read" class="hidden">
+        <div class="back-btn" onclick="showChapters()">← Back to Chapters</div>
+        <h1 id="current-chapter-title">Chapter Title</h1>
+        
+        <div id="content-area"></div>
+
+        <div class="read-nav">
+            <button id="prev-btn" onclick="prevChapter()">← 上一章</button>
+            <button onclick="showChapters()">Back to Chapters</button>
+            <button id="next-btn" onclick="nextChapter()">下一章 →</button>
+        </div>
+    </div>
+
+    <style>
+        /* 新增導航欄位的樣式 */
+        .read-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        .read-nav button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: opacity 0.2s;
+        }
+        .read-nav button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .read-nav button:hover:not(:disabled) {
+            opacity: 0.8;
+        }
+    </style>
 
     <script>
-        fetch('/api/books')
-            .then(res => res.json())
-            .then(books => {
-                const sel = document.getElementById('bookSelect');
-                sel.innerHTML = '<option>請選擇小說</option>' + 
-                    books.map(b => `<option value="${b}">${b}</option>`).join('');
-            });
+        const views = {
+            home: document.getElementById('view-home'),
+            chapters: document.getElementById('view-chapters'),
+            read: document.getElementById('view-read')
+        };
 
-        function loadChapters() {
-            const bookName = document.getElementById('bookSelect').value;
-            fetch(`/api/chapters/${encodeURIComponent(bookName)}`)
-                .then(res => res.json())
-                .then(chapters => {
-                    const sel = document.getElementById('chapterSelect');
-                    sel.innerHTML = chapters.map(c => 
-                        `<option value="${c.chapter_num}">${c.title}</option>`).join('');
-                    loadContent();
-                });
+        let activeBook = "";
+
+        let currentChNum = 1;
+        let totalChapters = 0;
+
+        // 頁面切換邏輯
+        function switchView(viewName) {
+            Object.values(views).forEach(v => v.classList.add('hidden'));
+            views[viewName].classList.remove('hidden');
+            window.scrollTo(0,0);
         }
 
-        function loadContent() {
-            const bookName = document.getElementById('bookSelect').value;
-            const chNum = document.getElementById('chapterSelect').value;
-            fetch(`/api/content/${encodeURIComponent(bookName)}/${chNum}`)
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('content').innerHTML = 
-                        `<h2>${data.title}</h2><pre style="white-space: pre-wrap;">${data.content}</pre>`;
-                });
+        function showHome() { switchView('home'); }
+        function showChapters() { switchView('chapters'); }
+
+        // 1. 初始化：抓取所有書籍
+        async function initLibrary() {
+            const res = await fetch('/api/books');
+            const books = await res.json();
+            const list = document.getElementById('book-list');
+            list.innerHTML = books.map(book => 
+                `<li onclick="loadChapters('${book}')">📖 ${book}</li>`
+            ).join('');
         }
+
+        // 2. 點擊書籍：抓取章節
+        async function loadChapters(bookName) {
+            activeBook = bookName;
+            document.getElementById('current-book-name').innerText = bookName;
+            const res = await fetch(`/api/chapters/${encodeURIComponent(bookName)}`);
+            const chapters = await res.json();
+            
+            totalChapters = chapters.length;
+
+            const list = document.getElementById('chapter-list');
+            list.innerHTML = chapters.map(ch => 
+                `<li onclick="loadContent(${ch.chapter_num})">第 ${ch.chapter_num} 章 - ${ch.title}</li>`
+            ).join('');
+            switchView('chapters');
+        }
+
+        // 3. 點擊章節：抓取內容
+        async function loadContent(chNum) {
+            currentChNum = chNum;
+            const res = await fetch(`/api/content/${encodeURIComponent(activeBook)}/${chNum}`);
+            if (!res.ok) return;
+
+            const data = await res.json();
+            
+            document.getElementById('current-chapter-title').innerText = data.title;
+            document.getElementById('content-area').innerText = data.content;
+            
+            document.getElementById('prev-btn').disabled = (currentChNum <= 1);
+            document.getElementById('next-btn').disabled = (currentChNum >= totalChapters);
+
+            switchView('read');
+        }
+        function prevChapter() { if (currentChNum > 1) loadContent(currentChNum - 1); }
+        function nextChapter() { if (currentChNum < totalChapters) loadContent(currentChNum + 1); }
+
+        initLibrary();
     </script>
 </body>
 </html>
