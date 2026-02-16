@@ -1,10 +1,9 @@
 import aiosqlite
 import json
-import re
 from pathlib import Path
 from .database import get_db
 from .normalization import normalize_chapter_title
-from logger_config import logger
+from .logger_config import logger
 
 INPUTS_DIR = Path("inputs")
 
