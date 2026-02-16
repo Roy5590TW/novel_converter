@@ -73,3 +73,11 @@ li:hover {
 .read-nav button:hover:not(:disabled) {
     opacity: 0.8;
 }
+
+
+
+.highlight-active {
+    background-color: rgba(59, 130, 246, 0.3) !important;
+    transition: background-color 0.3s ease;
+    border-radius: 4px;
+}

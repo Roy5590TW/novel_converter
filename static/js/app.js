@@ -16,7 +16,27 @@ export function switchView(viewName) {
 }
 
 export function showHome() { switchView('home'); }
-export function showChapters() { switchView('chapters'); }
+export function showChapters() { 
+    switchView('chapters'); 
+    
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            if (currentChNum) {
+                const targetEl = document.querySelector(`#chapter-list li[data-chnum="${currentChNum}"]`);
+                
+                if (targetEl) {
+                    targetEl.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+
+                    targetEl.classList.add('highlight-active');
+                    setTimeout(() => targetEl.classList.remove('highlight-active'), 1500);
+                }
+            }
+        }, 10);
+    });
+}
 
 // Initialization: Fetch all books
 export async function initLibrary() {
