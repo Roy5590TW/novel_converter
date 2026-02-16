@@ -1,3 +1,4 @@
 __*
 inputs/
+logs/
 data/*.db

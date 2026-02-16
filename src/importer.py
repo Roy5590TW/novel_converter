@@ -4,6 +4,7 @@ import re
 from pathlib import Path
 from .database import get_db
 from .normalization import normalize_chapter_title
+from logger_config import logger
 
 INPUTS_DIR = Path("inputs")
 
@@ -20,7 +21,7 @@ async def run_import():
                 row = await cursor.fetchone()
                 
                 if row is None:
-                    print(f"警告：無法取得 {book_name} 的 ID，跳過此書。")
+                    logger.warning(f"警告：無法取得 {book_name} 的 ID，跳過此書。")
                     continue
                 
                 book_id = row["id"]
