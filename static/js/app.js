@@ -42,17 +42,25 @@ export function showChapters() {
 export async function initLibrary() {
     try {
         const res = await fetch('/api/books');
+        if (!res.ok) throw new Error("無法取得書籍列表");
+        
         const books = await res.json();
         const list = document.getElementById('book-list');
 
-        list.innerHTML = books.map(book => 
-            `<li data-book="${book}">📖 ${book}</li>`
-        ).join('');
+        list.innerHTML = books.map(book => `
+            <li data-bookname="${book.book_name}">
+                <div class="book-info">
+                    <span class="icon">📖</span>
+                    <span class="title">${book.book_name}</span>
+                    <span class="author">${book.author}</span>
+                </div>
+            </li>
+        `).join('');
 
         list.onclick = (e) => {
             const li = e.target.closest('li');
-            if (li && li.dataset.book) {
-                loadChapters(li.dataset.book);
+            if (li && li.dataset.bookname) {
+                loadChapters(li.dataset.bookname);
             }
         };
     } catch (err) {
@@ -60,20 +68,40 @@ export async function initLibrary() {
     }
 }
 
+// book metadata
+function renderMetadata(metadata) {
+    document.getElementById('info-author').innerText = metadata.author || '未知';
+    document.getElementById('info-status').innerText = metadata.status || '連載中';
+    document.getElementById('info-description').innerText = metadata.description || '暫無簡介';
+    
+    const tagsContainer = document.getElementById('info-tags');
+    if (metadata.tags) {
+        tagsContainer.innerHTML = metadata.tags.split(',')
+            .map(tag => `<span class="tag-badge">${tag.trim()}</span>`)
+            .join(' ');
+    } else {
+        tagsContainer.innerText = '無';
+    }
+}
+
+
 // Click on the book: retrieve chapters
 export async function loadChapters(bookName) {
     activeBook = bookName;
     document.getElementById('current-book-name').innerText = bookName;
 
     try {
-        const res = await fetch(`/api/chapters/${encodeURIComponent(bookName)}`);
-        if (!res.ok) throw new Error("Chapters not found");
+        const [resChapters, resMeta] = await Promise.all([
+            fetch(`/api/chapters/${encodeURIComponent(bookName)}`),
+            fetch(`/api/metadata/${encodeURIComponent(bookName)}`)
+        ]);
+
+        if (!resChapters.ok) throw new Error("Chapters not found");
         
-        const chapters = await res.json();
+        const chapters = await resChapters.json();
         totalChapters = chapters.length;
 
         const list = document.getElementById('chapter-list');
-        
         list.innerHTML = chapters.map(ch => 
             `<li data-chnum="${ch.chapter_num}">${ch.title}</li>`
         ).join('');
@@ -85,9 +113,16 @@ export async function loadChapters(bookName) {
             }
         };
 
+        if (resMeta.ok) {
+            const metadata = await resMeta.json();
+            renderMetadata(metadata);
+        }
+
         switchView('chapters');
+        
     } catch (err) {
-        alert(err.message);
+        console.error(err);
+        alert("載入失敗: " + err.message);
     }
 }
 
