@@ -7,9 +7,48 @@ router = APIRouter()
 async def get_books():
     async with get_db() as db:
         db.row_factory = None
-        async with db.execute("SELECT book_name FROM books") as cursor:
+        sql = """
+            SELECT 
+                b.book_name, 
+                m.author, 
+                m.tags, 
+                m.status, 
+                m.description
+            FROM books b
+            LEFT JOIN book_metadata m ON b.id = m.book_id
+        """
+        async with db.execute(sql) as cursor:
             rows = await cursor.fetchall()
-            return [row[0] for row in rows]
+            return [
+                {
+                    "book_name": r[0],
+                    "author": r[1] or "未知",
+                    "tags": r[2] or "",
+                    "status": r[3] or "連載中",
+                    "description": r[4] or "暫無簡介"
+                } for r in rows
+            ]
+
+@router.get("/api/metadata/{book_name}")
+async def get_book_metadata(book_name: str):
+    async with get_db() as db:
+        db.row_factory = None
+        sql = """
+            SELECT m.author, m.tags, m.status, m.description
+            FROM book_metadata m
+            JOIN books b ON m.book_id = b.id
+            WHERE b.book_name = ?
+        """
+        async with db.execute(sql, (book_name,)) as cursor:
+            row = await cursor.fetchone()
+            if not row:
+                raise HTTPException(status_code=404, detail="找不到該書的元數據")
+            return {
+                "author": row[0],
+                "tags": row[1],
+                "status": row[2],
+                "description": row[3]
+            }
 
 @router.get("/api/chapters/{book_name}")
 async def get_chapters(book_name: str):

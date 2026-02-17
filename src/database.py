@@ -17,6 +17,19 @@ async def init_db():
                 book_name TEXT UNIQUE NOT NULL
             )
         ''')
+
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS book_metadata (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                book_id INTEGER UNIQUE NOT NULL,
+                author TEXT DEFAULT '未知',
+                tags TEXT DEFAULT '',
+                status TEXT DEFAULT '連載中',
+                description TEXT DEFAULT '暫無簡介',
+                last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (book_id) REFERENCES books (id) ON DELETE CASCADE
+            )
+        ''')
         
         await db.execute('''
             CREATE TABLE IF NOT EXISTS chapters (
@@ -25,7 +38,7 @@ async def init_db():
                 chapter_num INTEGER,
                 title TEXT,
                 content TEXT,
-                FOREIGN KEY (book_id) REFERENCES books (id),
+                FOREIGN KEY (book_id) REFERENCES books (id) ON DELETE CASCADE,
                 UNIQUE(book_id, chapter_num)
             )
         ''')
