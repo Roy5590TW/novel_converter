@@ -22,16 +22,7 @@ test_build:
   script:
     - docker build -t test-build .
   rules:
-    - if: '$CI_COMMIT_BRANCH != "main" && $CI_COMMIT_BRANCH != "dev"'
-
-publish_dev:
-  <<: *docker_setup
-  stage: build-and-push
-  script:
-    - docker build -t $CI_REGISTRY_IMAGE:dev .
-    - docker push $CI_REGISTRY_IMAGE:dev
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "dev"'
+    - if: '$CI_COMMIT_BRANCH != "main"'
 
 publish_latest:
   <<: *docker_setup
