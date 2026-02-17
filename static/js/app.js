@@ -1,3 +1,5 @@
+import * as api from './api.js';
+
 const views = {
     home: document.getElementById('view-home'),
     chapters: document.getElementById('view-chapters'),
@@ -18,18 +20,12 @@ export function switchView(viewName) {
 export function showHome() { switchView('home'); }
 export function showChapters() { 
     switchView('chapters'); 
-    
     requestAnimationFrame(() => {
         setTimeout(() => {
             if (currentChNum) {
                 const targetEl = document.querySelector(`#chapter-list li[data-chnum="${currentChNum}"]`);
-                
                 if (targetEl) {
-                    targetEl.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     targetEl.classList.add('highlight-active');
                     setTimeout(() => targetEl.classList.remove('highlight-active'), 1500);
                 }
@@ -41,12 +37,8 @@ export function showChapters() {
 // Initialization: Fetch all books
 export async function initLibrary() {
     try {
-        const res = await fetch('/api/books');
-        if (!res.ok) throw new Error("無法取得書籍列表");
-        
-        const books = await res.json();
+        const books = await api.getBooks();
         const list = document.getElementById('book-list');
-
         list.innerHTML = books.map(book => `
             <li data-bookname="${book.book_name}">
                 <div class="book-info">
@@ -59,9 +51,7 @@ export async function initLibrary() {
 
         list.onclick = (e) => {
             const li = e.target.closest('li');
-            if (li && li.dataset.bookname) {
-                loadChapters(li.dataset.bookname);
-            }
+            if (li && li.dataset.bookname) loadChapters(li.dataset.bookname);
         };
     } catch (err) {
         console.error("Failed to load library:", err);
@@ -84,23 +74,13 @@ function renderMetadata(metadata) {
     }
 }
 
-
 // Click on the book: retrieve chapters
 export async function loadChapters(bookName) {
     activeBook = bookName;
     document.getElementById('current-book-name').innerText = bookName;
-
     try {
-        const [resChapters, resMeta] = await Promise.all([
-            fetch(`/api/chapters/${encodeURIComponent(bookName)}`),
-            fetch(`/api/metadata/${encodeURIComponent(bookName)}`)
-        ]);
-
-        if (!resChapters.ok) throw new Error("Chapters not found");
-        
-        const chapters = await resChapters.json();
+        const { chapters, metadata } = await api.getBookDetails(bookName);
         totalChapters = chapters.length;
-
         const list = document.getElementById('chapter-list');
         list.innerHTML = chapters.map(ch => 
             `<li data-chnum="${ch.chapter_num}">${ch.title}</li>`
@@ -108,20 +88,12 @@ export async function loadChapters(bookName) {
 
         list.onclick = (e) => {
             const li = e.target.closest('li');
-            if (li && li.dataset.chnum) {
-                loadContent(parseInt(li.dataset.chnum));
-            }
+            if (li && li.dataset.chnum) loadContent(parseInt(li.dataset.chnum));
         };
 
-        if (resMeta.ok) {
-            const metadata = await resMeta.json();
-            renderMetadata(metadata);
-        }
-
+        if (metadata) renderMetadata(metadata);
         switchView('chapters');
-        
     } catch (err) {
-        console.error(err);
         alert("載入失敗: " + err.message);
     }
 }
@@ -130,17 +102,11 @@ export async function loadChapters(bookName) {
 export async function loadContent(chNum) {
     currentChNum = chNum;
     try {
-        const res = await fetch(`/api/content/${encodeURIComponent(activeBook)}/${chNum}`);
-        if (!res.ok) return;
-
-        const data = await res.json();
-        
+        const data = await api.getChapterContent(activeBook, chNum);
         document.getElementById('current-chapter-title').innerText = data.title;
         document.getElementById('content-area').innerText = data.content;
-        
         document.getElementById('prev-btn').disabled = (currentChNum <= 1);
         document.getElementById('next-btn').disabled = (currentChNum >= totalChapters);
-
         switchView('read');
     } catch (err) {
         console.error("Error loading content:", err);
