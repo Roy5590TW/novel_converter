@@ -1,7 +1,13 @@
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse
 from .database import get_db
 
 router = APIRouter()
+favicon_path = 'favicon.ico'
+
+@router.get('/favicon.ico', include_in_schema=False)
+async def favicon():
+    return FileResponse(favicon_path)
 
 @router.get("/api/books")
 async def get_books():
